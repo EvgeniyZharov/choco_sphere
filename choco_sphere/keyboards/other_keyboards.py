@@ -27,10 +27,11 @@ def start_keyboards():
     return kb_start
 
 
-def set_contact_user():
+def set_contact_user(back_btn=True):
     kb = ReplyKeyboardMarkup(resize_keyboard=True)
     kb.add(KeyboardButton("Отправить контакт", request_contact=True))
-    kb.add(KeyboardButton("Назад"))
+    if back_btn:
+        kb.add(KeyboardButton("Назад"))
     kb.add(KeyboardButton("Отмена"))
 
     return kb
