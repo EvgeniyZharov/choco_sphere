@@ -24,10 +24,11 @@ def get_histogram(file_name, type_histogram=1):
                 count_dict[elem['product_title']] += elem["count"]
             else:
                 count_dict[elem['product_title']] = elem["count"]
-        print(count_dict)
         data_a = list(count_dict.keys())
         data_b = list(count_dict.values())
+        plt.xlabel("Продукт")
         plt.ylabel("Количество")
+
     elif type_histogram == 2:
         price_dict = dict()
         for elem in sold_list:
@@ -37,6 +38,19 @@ def get_histogram(file_name, type_histogram=1):
                 price_dict[elem['product_title']] = elem["count"] * elem["one_price"]
             data_a = list(price_dict.keys())
             data_b = list(price_dict.values())
+            plt.xlabel("Продукт")
+            plt.ylabel("Общая стоимость")
+
+    elif type_histogram == 3:
+        category_dict = dict()
+        for elem in sold_list:
+            if elem["category_title"] in category_dict:
+                category_dict[elem['category_title']] += elem["count"]
+            else:
+                category_dict[elem['category_title']] = elem["count"]
+            data_a = list(category_dict.keys())
+            data_b = list(category_dict.values())
+            plt.xlabel("Категория")
             plt.ylabel("Общая стоимость")
 
     #
@@ -55,7 +69,6 @@ def get_histogram(file_name, type_histogram=1):
     # data_a = list(data_dict.keys())
     plt.bar(data_a, data_b)
     plt.title("Аналитика!")
-    plt.xlabel("Продукт")
 
     plt.savefig(file_name)
 
