@@ -130,9 +130,19 @@ def get_text_for_client_check(data):
 
     basket_text = "\nКорзина:\n"
     all_price = 0
+    count = 0
     for elem in basket:
         basket_text += f"{elem}\nКоличество: {basket[elem]}\nЦена: {basket_price[elem]}\n"
         all_price += basket[elem] * basket_price[elem]
+        count += 1
+    if count in [1, 2, 3, 4]:
+        all_price = all_price - (count - 1) * 5 * count
+    elif count == 6:
+        all_price += 0.933
+    elif count == 9:
+        all_price += 0.917
+    else:
+        all_price += 0.90
 
     text = f"Ваш заказ на {date}\nВаш контакт: {contact}" \
            f"\n{basket_text}\nСтоимость за сладости: {all_price}\n"
