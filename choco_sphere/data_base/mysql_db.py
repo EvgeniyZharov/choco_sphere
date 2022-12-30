@@ -26,10 +26,6 @@ def connecting():
             password=password,
             cursorclass=pymysql.cursors.DictCursor
         )
-	con.set_character_set('utf8')
-	con.execute('SET NAMES utf8;')
-	con.execute('SET CHARACTER SET utf8;')
-	con.execute('SET character_set_connection=utf8;')
         print("SUCCESS")
         return True
     except Exception as ex:
