@@ -22,6 +22,7 @@ from data_base import get_ask_answer_table
 from data_base import get_list_ask
 from data_base import get_from_ask_answer
 from data_base import add_user_ticket_in_table
+from data_base import add_admin_in_table
 
 
 import datetime
@@ -46,6 +47,8 @@ asks_dict = dict()
 INT_PLACE = 0
 
 ADMINS = ["961023982"]
+ADD_ADMIN_KEYS = list()
+ADD_ADMIN_KEY = "not"
 ACCOUNTS = dict()
 
 
@@ -98,6 +101,13 @@ class FSMAuthorization(StatesGroup):
     password = State()
 
 
+class FSMAddAdmin(StatesGroup):
+    add_new_admin = State()
+    input_key = State()
+    input_contact = State()
+    input_password = State()
+
+
 def get_text_for_client_check(data):
     basket = data["basket"]
     basket_price = data["basket_price"]
@@ -132,9 +142,59 @@ def get_text_for_client_check(data):
     return text
 
 
-@dp.message_handler(commands=["test"])
-async def func(msg: types.Message):
+test_command = ['test']
+
+
+@dp.message_handler(commands=test_command)
+async def input_add_admin_key(msg: types.Message):
     await msg.answer(msg.from_user.id)
+
+
+@dp.message_handler(commands=["add_admin"])
+async def input_add_admin_key(msg: types.Message):
+    user_id = str(msg.from_user.id)
+    if user_id in ADMINS:
+        return
+
+    await msg.answer("Введите ключ для создания аккаунта админа",
+                     reply_markup=other_keyboards.create_keyboards(list(), cancel_btn=True))
+    await FSMAddAdmin.add_new_admin.set()
+
+
+@dp.message_handler(state=FSMAddAdmin.add_new_admin)
+async def input_add_admin_key(msg: types.Message):
+    if msg.text in ADD_ADMIN_KEYS:
+        await msg.answer("Нужно ввести Ваш номер, для этого нажмите на кнопку",
+                         reply_markup=other_keyboards.set_contact_user(back_btn=False))
+        await FSMAddAdmin.input_key.set()
+
+
+@dp.message_handler(content_types=["contact"], state=FSMAddAdmin.input_key)
+async def func(msg: types.Message, state: FSMContext):
+    contact = msg["contact"]["phone_number"]
+    async with state.proxy() as data:
+        data["contact"] = str(contact)
+    await msg.answer("Теперь введите пароль для Вашего аккаунта",
+                     reply_markup=other_keyboards.create_keyboards(list(), cancel_btn=True))
+    await FSMAddAdmin.input_contact.set()
+
+
+@dp.message_handler(state=FSMAddAdmin.input_contact)
+async def func(msg: types.Message, state: FSMContext):
+    password = str(msg.text)
+    user_id = str(msg.from_user.id)
+    async with state.proxy() as data:
+        contact = str(data["contact"])
+    result = add_admin_in_table(user_id, contact, password)
+    if result:
+        ADMINS.append(user_id)
+        ADD_ADMIN_KEYS.clear()
+        await msg.answer("Ваш аккаунт успешно создан. Теперь Вам доступны настройки админа",
+                         reply_markup=admin_keyboards.start_admin())
+    else:
+        await msg.answer("Произошла ошибка",
+                         reply_markup=other_keyboards.create_keyboards(list(), cancel_btn=True))
+    await FSMAddAdmin.input_password.set()
 
 
 # CANCEL
@@ -171,6 +231,10 @@ async def start(msg: types.Message):
 
 @dp.message_handler(commands=["log_in"], state="*")
 async def log_in(msg: types.Message, state: FSMContext):
+    user_id = str(msg.from_user.id)
+    if user_id in ADMINS:
+        await msg.answer("Вы уже авторизированы.")
+        return
     current_state = await state.get_state()
     if current_state:
         await state.finish()
@@ -205,7 +269,6 @@ async def authorization_password(msg: types.Message, state: FSMContext):
 
     async with state.proxy() as data:
         user = data["user"]
-        print(user)
         if msg.text == user["user_password"]:
             user_id = str(msg.from_user.id)
             # await msg.answer("Добропожаловать! Вы вошли в свой аккаунт.",
@@ -214,7 +277,6 @@ async def authorization_password(msg: types.Message, state: FSMContext):
 
             if user["user_status"] == "admin":
                 await msg.answer("Аккаунт администратора запущен.", reply_markup=admin_keyboards.start_admin())
-                # ACCOUNTS[user_id] = "admin"
                 ADMINS.append(user_id)
             await state.finish()
         else:
@@ -227,12 +289,13 @@ async def authorization_password(msg: types.Message, state: FSMContext):
 
 @dp.message_handler(commands=["log_out"], state="*")
 async def log_out(msg: types.Message, state: FSMContext):
-    global ADMINS
-    current_state = await state.get_state()
-    if current_state:
-        await state.finish()
-    ADMINS.remove(str(msg.from_user.id))
-    await msg.reply("Закрываем режим Админа", reply_markup=other_keyboards.start_keyboards())
+    user_id = str(msg.from_user.id)
+    if user_id in ADMINS:
+        current_state = await state.get_state()
+        if current_state:
+            await state.finish()
+        ADMINS.remove(str(msg.from_user.id))
+        await msg.reply("Закрываем режим Админа", reply_markup=other_keyboards.start_keyboards())
 
 
 # SHOW ALL PRODUCT CHOICE CATEGORY
@@ -251,8 +314,7 @@ async def show_product(msg: types.Message, state: FSMContext):
             category = category_list[data["category_index"]]
             data["category"] = category
 
-            text = f"{category['title']}\n" \
-                   f"Описание: {category['category_description']}"
+            text = f"{category['title']}"
 
             await msg.answer("Веберите категорию",
                              reply_markup=other_keyboards.create_keyboards(list(), cancel_btn=True))
@@ -483,8 +545,7 @@ async def choice_count_pack(callback: types.CallbackQuery, state: FSMContext):
                 category = category_list[data["category_index"]]
                 data["category"] = category
 
-                text = f"{category['title']}\n" \
-                       f"Описание: {category['category_description']}"
+                text = f"{category['title']}\n"
 
                 if data["count_is_set"] > 0:
                     text += f"\n\nВаша корзина:"
@@ -589,6 +650,8 @@ async def get_info_about_category(callback: types.CallbackQuery, state: FSMConte
 
         product_list = get_from_category_product(category_id)
         if product_list:
+
+            data["product_basket"] = {category["title"]: {}}
 
             data["product_index"] = 0
             data["product_start_index"] = 0
@@ -766,12 +829,19 @@ async def add_product_in_box(callback: types.CallbackQuery, state: FSMContext):
             return
 
         title_product = data["product"]["title"]
+        category = data["category"]
+        # if category["category_title"] in data["product_basket"]:
+
         if title_product in data["basket"]:
             data["basket"][title_product] += 1
+            data["basket_price"][title_product] = data["product"]["price"]
+            data["product_basket"][category["title"]][title_product]["count"] += 1
+            # data["product_basket"][category["title"]][title_product]["price"] = data["product"]["price"]
+
         else:
             data["basket"][title_product] = 1
             data["basket_price"][title_product] = data["product"]["price"]
-
+            data["product_basket"][category["title"]][title_product] = {"count": 1, "price": data["product"]["price"]}
         product = data["product"]
 
         data["all_price"] += product["price"]
@@ -803,9 +873,12 @@ async def delete_product_from_box(callback: types.CallbackQuery, state: FSMConte
             await callback.answer("Коробка уже пустая")
             return
 
+        category = data["category"]
         title_product = data["product"]["title"]
         if title_product in data["basket"]:
+
             data["basket"][title_product] -= 1
+            data["product_basket"][category["title"]][title_product]["count"] -= 1
         else:
             await callback.answer("Вы такой еще не добавляли")
             return
@@ -1158,7 +1231,7 @@ async def set_contact(msg: types.Message, state: FSMContext):
             basket = data["basket"]
             basket_price = data["basket_price"]
 
-            result = add_new_solds_packs(basket, basket_price, order_id)
+            result = add_new_solds_packs(data["product_basket"], order_id)
 
             await msg.answer("Ваша заявка отправлена!",
                              reply_markup=other_keyboards.start_keyboards())
@@ -1213,6 +1286,15 @@ async def show_answer(msg: types.Message):
         await bot.send_message("961023982", "Добавлен новый тикет от пользователя")
         for elem in ADMINS:
             await bot.send_message(f"{elem}", "Добавлен новый тикет от пользователя")
+
+
+# @dp.message_handler()
+# async def input_add_admin_key(msg: types.Message):
+#     if msg.text in ADD_ADMIN_KEYS:
+#         print("okey")
+#         await msg.answer("Нужно ввести Ваш номер, для этого нажмите на кнопку",
+#                          reply_markup=other_keyboards.set_contact_user())
+#         await FSMAddAdmin.input_key.set()
 
 
 
