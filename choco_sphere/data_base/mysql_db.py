@@ -124,6 +124,7 @@ def create_sold_pack_table(db_title=database_title):
         request = f"""CREATE TABLE IF NOT EXISTS db_chocosphere.sold_pack (sold_id int AUTO_INCREMENT,
 								 order_id int,
 								 product_title VARCHAR(100),
+                                 category_title VARCHAR(100),
                                  count int,
                                  one_price int,
                                  PRIMARY KEY(sold_id),
@@ -167,11 +168,11 @@ def create_user_ticket_table(db_title=database_title):
 
 # ADD ELEMENT FOR TABLE IN DATABASE
 
-def add_users_in_table(phone, user_password, user_status="client"):
+def add_users_in_table(user_id, phone, user_password, user_status="client"):
     try:
-        request = """INSERT INTO db_chocosphere.users (phone, user_password, user_status) VALUES (%s, %s, %s);"""
+        request = """INSERT INTO db_chocosphere.users (user_id, phone, user_password, user_status) VALUES (%s, %s, %s, %s);"""
         # request = "INSERT INTO users (name) VALUES (%s)"
-        record = [(phone, user_password, user_status)]
+        record = [(user_id, phone, user_password, user_status)]
         with con.cursor() as cur:
             cur.executemany(request, record)
             con.commit()
@@ -181,8 +182,8 @@ def add_users_in_table(phone, user_password, user_status="client"):
         return False
 
 
-def add_admin_in_table(phone, user_password):
-    result = add_users_in_table(phone, user_password, user_status="admin")
+def add_admin_in_table(user_id, phone, user_password):
+    result = add_users_in_table(user_id, phone, user_password, user_status="admin")
     return result
 
 
@@ -227,11 +228,11 @@ def add_orders_in_table(user_id, order_date, to_date, type_deliver, to_place, co
         return False
 
 
-def add_sold_pack_in_table(order_id, product_title, count, one_price):
+def add_sold_pack_in_table(order_id, product_title, category_title, count, one_price):
     try:
-        request = """INSERT INTO db_chocosphere.sold_pack (order_id, product_title, count, one_price) VALUES (%s, %s, %s, %s);"""
+        request = """INSERT INTO db_chocosphere.sold_pack (order_id, product_title, category_title, count, one_price) VALUES (%s, %s, %s, %s, %s);"""
         # request = "INSERT INTO users (name) VALUES (%s)"
-        record = [(order_id, product_title, count, one_price)]
+        record = [(order_id, product_title, category_title, count, one_price)]
         with con.cursor() as cur:
             cur.executemany(request, record)
             con.commit()
@@ -492,7 +493,7 @@ def get_from_ask_answer(ask):
 
 
 def get_from_order_sold(order_id):
-    result = get_elem_for_elem(TABLES[4], ['product_title', 'count', 'one_price'], "order_id", order_id)
+    result = get_elem_for_elem(TABLES[4], ['product_title', 'category_title', 'count', 'one_price'], "order_id", order_id)
     if result[0]:
         return result[1]
     else:
@@ -517,10 +518,13 @@ def get_actual_order():
 
 # ADD FUNCTION
 
-def add_new_solds_packs(basket, basket_price, order_id):
+def add_new_solds_packs(basket, order_id):
     try:
-        for elem in basket:
-            add_sold_pack_in_table(order_id, elem, basket[elem], basket_price[elem])
+        for category_title in basket:
+            for product_title in basket[category_title]:
+                count = basket[category_title][product_title]["count"]
+                price = basket[category_title][product_title]["price"]
+                add_sold_pack_in_table(order_id, product_title, category_title, count, price)
         return True
     except Exception:
         return False
@@ -556,7 +560,7 @@ count_sold = 4
 price = 200
 
 # print(add_users_in_table("+79998887767", "hard_password"))
-# print(add_admin_in_table("+79999999999", "hard_password"))
+print(add_admin_in_table("404248385", "+79999999999", "pass"))
 # print(add_category_in_table("category one", "description of the category", "some link for image"))
 # print(add_orders_in_table(user_id, "22.22.2222", "33.33.3333", "delivery", "Moscow", count_product, "+71232134", "some text of comment", "ACTUAL"))
 # print(add_product_in_table(category_id, "product one", "description of the product", "some material", all_price, "some link"))
@@ -587,490 +591,3 @@ print("***"*100)
 
 ################################################################################33
 
-#
-#
-# def sql_start(db_name="new_db.db"):
-#
-#     conn = sql.connect(db_name)
-#     cur = conn.cursor()
-#
-#     if conn:
-#         print("Data Base connected OK.")
-#
-#     # id, mail, contact, password, status
-#     request = "CREATE TABLE IF NOT EXISTS users(" \
-#               "id INT PRIMARY KEY NOT NULL, " \
-#               "mail TEXT NOT NULL," \
-#               "contact TEXT NOT NULL," \
-#               "password TEXT NOT NULL," \
-#               "status TEXT)"
-#     cur.execute(request)
-#
-#     # id, title, description
-#     request = "CREATE TABLE IF NOT EXISTS category_product(" \
-#               "id INT PRIMARY KEY NOT NULL," \
-#               "title TEXT NOT NULL," \
-#               "description TEXT NOT NULL," \
-#               "image TEXT NOT NULL);"
-#     cur.execute(request)
-#
-#     # id, title, describe, image, price, structure, category_id
-#     request = "CREATE TABLE IF NOT EXISTS products(" \
-#               "id INT PRIMARY KEY NOT NULL," \
-#               "title TEXT NOT NULL," \
-#               "describe TEXT NOT NULL," \
-#               "image TEXT NOT NULL," \
-#               "price INT NOT NULL," \
-#               "structure TEXT NOT NULL," \
-#               "category_id INT NOT NULL)"
-#
-#     cur.execute(request)
-#
-#     # id, user_id, date, cost, place
-#     request = "CREATE TABLE IF NOT EXISTS orders(" \
-#               "id INT PRIMARY KEY NOT NULL," \
-#               "user_id INT NOT NULL," \
-#               "date TEXT NOT NULL," \
-#               "cost FLOAT NOT NULL," \
-#               "address TEXT NOT NULL," \
-#               "distance FLOAT NOT NULL," \
-#               "user_contact TEXT NOT NULL," \
-#               "data_order TEXT NOT NULL," \
-#               "approx_sum FLOAT NOT NULL)"
-#
-#     cur.execute(request)
-#
-#     request = "CREATE TABLE IF NOT EXISTS packs(" \
-#               "id INT PRIMARY KEY NOT NULL," \
-#               "order_id INT NOT NULL," \
-#               "count TEXT NOT NULL," \
-#               "input TEXT NOT NULL);"
-#
-#     cur.execute(request)
-#
-#     # id, order_id, product_id, cost_product, status
-#     request = "CREATE TABLE IF NOT EXISTS sold(" \
-#               "id INT PRIMARY KEY NOT NULL," \
-#               "order_id INT NOT NULL," \
-#               "product_id INT NOT NULL," \
-#               "cost_product INT NOT NULL," \
-#               "count INT NOT NULL)"
-#
-#     cur.execute(request)
-#
-#     request = "CREATE TABLE IF NOT EXISTS user_asks(" \
-#               "id INT PRIMARY KEY NOT NULL," \
-#               "ask TEXT NOT NULL," \
-#               "answer TEXT NOT NULL);"
-#
-#     cur.execute(request)
-#
-#     conn.commit()
-#
-#     return conn, cur
-#
-#
-# conn, cur = sql_start()
-#
-#
-# # id, ask, answer
-# def add_user_ask(ask, answer):
-#     try:
-#         request = "SELECT * FROM user_asks WHERE ask = ?"
-#
-#         if cur.execute(request, (ask,)).fetchall():
-#             return 0
-#         request = "SELECT * FROM user_asks"
-#         num_id = len(cur.execute(request).fetchall()) + 1
-#
-#         requests = "INSERT INTO user_asks VALUES (?, ?, ?);"
-#         cur.execute(requests, (num_id, ask, answer))
-#         conn.commit()
-#         return True
-#     except Exception as ex:
-#         print(ex)
-#         return False
-#
-#
-# def get_user_asks():
-#     request = "SELECT * FROM user_asks"
-#     user_asks = list()
-#     for elem in cur.execute(request).fetchall():
-#         # print(f"ID: {elem[0]},\nLogin: {elem[1]},\nPassword: {elem[2]}")
-#         user_asks.append(elem)
-#     return user_asks
-#
-#
-# # print(add_user_ask("ask one", "answer one"))
-# # print(add_user_ask("ask two", "answer two"))
-# # print(add_user_ask("ask three", "answer three"))
-# # print(get_user_asks())
-#
-#
-# # id, mail, contact, password, status
-# def add_user(mail, contact, password, status="client"):
-#     try:
-#         request = "SELECT * FROM users WHERE contact = ?"
-#
-#         if cur.execute(request, (contact,)).fetchall():
-#             return 0
-#         request = "SELECT * FROM users"
-#         num_id = len(cur.execute(request).fetchall()) + 1
-#
-#         requests = "INSERT INTO users VALUES (?, ?, ?, ?, ?);"
-#         cur.execute(requests, (num_id, mail, contact, password, status))
-#         conn.commit()
-#         return True
-#     except Exception as ex:
-#         print(ex)
-#         return False
-#
-#
-# def add_admin(mail, contact, password):
-#     status = "admin"
-#     result = add_user(mail, contact, password, status=status)
-#     if result:
-#         return True
-#     else:
-#         return False
-#
-#
-# def get_users():
-#     request = "SELECT * FROM users"
-#     users = list()
-#     for elem in cur.execute(request).fetchall():
-#         # print(f"ID: {elem[0]},\nLogin: {elem[1]},\nPassword: {elem[2]}")
-#         users.append(elem)
-#     return users
-#
-#
-# # def get_user_id(user_id):
-# #     request = "SELECT * FROM users WHERE "
-#
-#
-# # print(add_user("mail", "8263488", "pass123", "base"))
-# # print(add_user("mail", "898", "pass123", "base"))
-# # print(add_user("mail", "888", "pass123", "base"))
-# #
-# #
-# # add_admin("main", "777", "pass")
-# # print(get_users())
-#
-#
-# # id, title, describe, image, price, structure
-# def add_category_product(title, describe):
-#     try:
-#
-#         request = "SELECT * FROM category_product WHERE title = ?"
-#
-#         if cur.execute(request, (title,)).fetchall():
-#             return 0
-#         request = "SELECT * FROM category_product"
-#         num_id = len(cur.execute(request).fetchall()) + 1
-#
-#         requests = "INSERT INTO category_product VALUES (?, ?, ?);"
-#         cur.execute(requests, (num_id, title, describe))
-#         conn.commit()
-#         print("done")
-#         return True
-#
-#     except Exception as ex:
-#         print(ex)
-#         return False
-#
-#
-# def get_category():
-#     request = "SELECT * FROM category_product"
-#     category = list()
-#     for elem in cur.execute(request).fetchall():
-#         # print(f"ID: {elem[0]},\nLogin: {elem[1]},\nPassword: {elem[2]}")
-#         category.append(elem)
-#     return category
-#
-# #
-# # print(add_category_product("title1", "describe"))
-# # print(add_category_product("title2", "describe"))
-# # print(add_category_product("title3", "describe"))
-# #
-# #
-# # print(get_category())
-#
-#
-# # id, title, describe, image, price, structure, category
-# def add_product(title, describe, image, price, structure, category):
-#     try:
-#
-#         request = "SELECT * FROM products WHERE title = ?"
-#
-#         if cur.execute(request, (title,)).fetchall():
-#             return 0
-#
-#         request = "SELECT id FROM category_product WHERE title = ?"
-#
-#         if not cur.execute(request, (category,)).fetchall():
-#             return 0
-#
-#         request = "SELECT id FROM products"
-#         print(len(cur.execute(request).fetchall()))
-#
-#         result = cur.execute(request).fetchall()
-#         if len(result) == 0:
-#             num_id = 0
-#         else:
-#             num_id = result[-1][0] + 1
-#
-#         requests = "INSERT INTO products VALUES (?, ?, ?, ?, ?, ?, ?);"
-#         cur.execute(requests, (num_id, title, describe, image, price, structure, category))
-#         conn.commit()
-#         print("done")
-#         return True
-#
-#     except Exception as ex:
-#         print(ex)
-#         return False
-#
-#
-# def del_product(product_title):
-#     try:
-#         request = "DELETE FROM products WHERE title = ?;"
-#         cur.execute(request, (product_title,))
-#         conn.commit()
-#         request = "SELECT * FROM products WHERE title = ?;"
-#         result = cur.execute(request, (product_title,)).fetchall()
-#         if result:
-#             return "Запись не удалена"
-#         else:
-#             return "Запись успешно удалена"
-#     except Exception as ex:
-#         print(ex)
-#         return "Произошла ошибка"
-#
-#
-# def get_products():
-#     request = "SELECT * FROM products"
-#     products = list()
-#     for elem in cur.execute(request).fetchall():
-#         # print(f"ID: {elem[0]},\nLogin: {elem[1]},\nPassword: {elem[2]}")
-#         products.append(elem)
-#     return products
-#
-#
-# def get_product_title(product_title):
-#     request = "SELECT * FROM products WHERE title = ?;"
-#     product = cur.execute(request, (product_title,)).fetchall()
-#     return product
-#
-#
-# def get_product_id(product_id):
-#     request = "SELECT title FROM products WHERE id = ?;"
-#     product = cur.execute(request, (product_id,)).fetchall()[0]
-#     return product
-#
-#
-# # print(add_product("title1", "describe",
-# # "AgACAgIAAxkBAAIFj2Nhf5sYSrW5BZbA8KnrhukvbrudAAKEwjEbLzgJS5q8nU_0xg4dAQADAgADcwADKgQ", 100, "structure", "title1"))
-# # print(add_product("title2", "describe",
-# # "AgACAgIAAxkBAAIFj2Nhf5sYSrW5BZbA8KnrhukvbrudAAKEwjEbLzgJS5q8nU_0xg4dAQADAgADcwADKgQ", 200, "structure", "title1"))
-# # print(add_product("title3", "describe",
-# # "AgACAgIAAxkBAAIFj2Nhf5sYSrW5BZbA8KnrhukvbrudAAKEwjEbLzgJS5q8nU_0xg4dAQADAgADcwADKgQ", 250, "structure", "title1"))
-#
-# # #
-# # print(get_products())
-# # print(del_product("title3"))
-# # print(get_products())
-#
-# #
-# # print(get_product_title("title1"))
-#
-#
-# def add_sold(order_id, elem, product_title):
-#     request = "SELECT * FROM sold"
-#     num_id = len(cur.execute(request).fetchall()) + 1
-#
-#     cost = elem["cost"]
-#     count = elem["count"]
-#
-#     request = "SELECT id FROM products WHERE title = ?;"
-#     id_product = cur.execute(request, (product_title,)).fetchall()[0][0]
-#     print(id_product)
-#
-#     requests = "INSERT INTO sold VALUES (?, ?, ?, ?, ?);"
-#     cur.execute(requests, (num_id, order_id, id_product, cost, count))
-#     conn.commit()
-#
-#
-# def get_sold():
-#     request = "SELECT * FROM sold"
-#     sold = list()
-#     for elem in cur.execute(request).fetchall():
-#         # print(f"ID: {elem[0]},\nLogin: {elem[1]},\nPassword: {elem[2]}")
-#         sold.append(elem)
-#     return sold
-#
-#
-# def get_sold_order_id(order_id):
-#     request = "SELECT * FROM sold WHERE order_id = ?"
-#     sold = list()
-#     for elem in cur.execute(request, (order_id,)).fetchall():
-#         # print(f"ID: {elem[0]},\nLogin: {elem[1]},\nPassword: {elem[2]}")
-#         sold.append(elem)
-#     return sold
-#
-#
-# def add_pack_input(packs, order_id):
-#     request = "SELECT * FROM packs"
-#     num_id = len(cur.execute(request).fetchall()) + 1
-#
-#     for elem in packs:
-#         pack_title = elem
-#         for inp in packs[elem]:
-#             product_input = ", ".join(inp)
-#             request = "INSERT INTO packs VALUES (?, ?, ?, ?);"
-#             cur.execute(request, (num_id, order_id, pack_title, product_input))
-#             num_id += 1
-#
-#     conn.commit()
-#
-#
-# def get_packs_order_id(order_id):
-#     packs = list()
-#
-#     request = "SELECT * FROM packs WHERE order_id = ?;"
-#
-#     for elem in cur.execute(request, (order_id,)).fetchall():
-#         # print(f"ID: {elem[0]},\nLogin: {elem[1]},\nPassword: {elem[2]}")
-#         packs.append(elem)
-#     return packs
-#
-#
-# def get_packs():
-#     packs = list()
-#
-#     request = "SELECT * FROM packs;"
-#
-#     for elem in cur.execute(request).fetchall():
-#         # print(f"ID: {elem[0]},\nLogin: {elem[1]},\nPassword: {elem[2]}")
-#         packs.append(elem)
-#     return packs
-#
-#
-# basket = {
-#     "title1": {
-#         "cost": 100,
-#         "count": 2
-#     },
-#     "title2": {
-#         "cost": 1003,
-#         "count": 1
-#     },
-#     "title3": {
-#         "cost": 1030,
-#         "count": 5
-#     },
-#
-# }
-#
-# # print(add_sold(1, basket[0]))
-# # print(add_sold(2, basket[0]))
-# # print(add_sold(5, basket[0]))
-# #
-# #
-# # print(get_sold())
-#
-#
-# # id, user_id, date, cost, place
-# def add_orders(id_users, basket, date, place, distance, contact, data_order, approx_sum, packs):
-#
-#     # basket : [{"id": id, "price": price}]
-#     request = "SELECT * FROM orders"
-#     num_id = len(cur.execute(request).fetchall()) + 1
-#
-#     cost = 0
-#
-#     for elem in basket:
-#         cost += basket[elem]["count"] * basket[elem]["cost"]
-#         add_sold(num_id, basket[elem], elem)
-#
-#     add_pack_input(packs, num_id)
-#
-#     requests = "INSERT INTO orders VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);"
-#     cur.execute(requests, (num_id, id_users, date, cost, place, distance, contact, data_order, approx_sum))
-#     conn.commit()
-#     print("done")
-#
-#
-# def get_orders():
-#     request = "SELECT * FROM orders"
-#     orders = list()
-#     for elem in cur.execute(request).fetchall():
-#         # print(f"ID: {elem[0]},\nLogin: {elem[1]},\nPassword: {elem[2]}")
-#         orders.append(elem)
-#     return orders
-#
-#
-# # add_orders(777, basket, 000, "Moscow", 12, "8999999999", '12.23.2023', 23412)
-# # add_orders(777, basket, 000, "Moscow", 13, "8999999999", '12.23.2023', 1234)
-# # add_orders(777, basket, 000, "Moscow", 15, "8999999999", '12.23.2023', 2314)
-# #
-# #
-# # print(get_orders())
-#
-# #
-# # # id, order_id, product_id, cost_product, status
-# # def add_sold(id_orders, id_product, cost):
-# #     request = "SELECT * FROM sold"
-# #     num_id = len(cur.execute(request).fetchall()) + 1
-# #
-# #     requests = "INSERT INTO sold VALUES (?, ?, ?, ?);"
-# #     cur.execute(requests, (num_id, id_orders, id_product, cost))
-# #     conn.commit()
-# #     print("done")
-# #
-# #
-#
-#
-# def get_user(mail):
-#     requests = "SELECT * FROM users WHERE mail = ?"
-#     result = cur.execute(requests, (mail,)).fetchall()
-#     if result:
-#         return [True, result[0]]
-#     else:
-#         return [False]
-#
-#
-# # def get_products():
-# #     requests = "SELECT * FROM products"
-# #     result = cur.execute(requests).fetchall()
-# #     if result:
-# #         return [True, result]
-# #     else:
-# #         return [False]
-#
-# # print(get_user("test_three@mail.com")[1][2])
-# # add_user("test_three@mail.com", "812343241", "qwerty321123")
-#
-#
-# def sql_add(login, password):
-#     request = "INSERT INTO users VALUES ('login', 'password')"
-#     cur.execute(request, ("test_one", "qwerty1"))
-#     conn.commit()
-#     print("done")
-#
-#
-# # def show_users():
-# #     request = "SELECT * FROM users"
-# #     users = list()
-# #     for elem in cur.execute(request).fetchall():
-# #         # print(f"ID: {elem[0]},\nLogin: {elem[1]},\nPassword: {elem[2]}")
-# #         users.append(elem)
-# #     return users
-#
-# # sql_add("some_login_one", "password_1")
-# # sql_add("some_login_two", "password_2")
-# # sql_add("some_login_three", "password_3")
-# #
-#
-#
-# # add_admin("test_mail@gmail.com", "+79528370781", "passwordHard")
-#
-# # print(show_users())
