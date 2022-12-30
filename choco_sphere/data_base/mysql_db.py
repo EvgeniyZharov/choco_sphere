@@ -66,7 +66,7 @@ def create_user_table(db_title=database_title):
 def create_category_table(db_title=database_title):
     try:
         request = f"""CREATE TABLE IF NOT EXISTS db_chocosphere.category (category_id int AUTO_INCREMENT,
-								 title VARCHAR(20) UNIQUE,
+								 title VARCHAR(100) UNIQUE,
                                  category_description TEXT,
                                  image_link VARCHAR(200),
                                  PRIMARY KEY(category_id));"""
@@ -82,7 +82,7 @@ def create_product_table(db_title=database_title):
     try:
         request = f"""CREATE TABLE IF NOT EXISTS db_chocosphere.product (product_id int AUTO_INCREMENT,
 								 category_id int,
-                                 title VARCHAR(20),
+                                 title VARCHAR(100),
                                  product_description TEXT,
                                  structure TEXT,
                                  price int,
