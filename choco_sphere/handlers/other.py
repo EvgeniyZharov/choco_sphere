@@ -114,15 +114,15 @@ def get_text_for_client_check(data):
     location = data["location"]
     if location["type"] == "self":
         distance = 0
-        distance_text = "Доставка: 0 (самовывоз)"
+        distance_text = "Доставка: 0 руб. (самовывоз)"
     elif location["type"] == "button":
         distance = find_distance(f"{location['latitude']} - {location['longitude']}", type_place=2)
         price_2 = float(str(distance).split()[0]) * 100
-        distance_text = f"Стоимость доставки: {price_2}"
+        distance_text = f"Стоимость доставки: {price_2} руб."
     else:
         distance = find_distance(location["address"])
         price_2 = float(str(distance).split()[0]) * 100
-        distance_text = f"Стоимость доставки: {price_2}"
+        distance_text = f"Стоимость доставки: {price_2} руб."
 
     date = f"{data['day_order']}.{data['month_order']}.{data['year_order']}"
 
@@ -145,7 +145,7 @@ def get_text_for_client_check(data):
         all_price *= 0.90
 
     text = f"Ваш заказ на {date}\nВаш контакт: {contact}" \
-           f"\n{basket_text}\nСтоимость за сладости: {all_price}\n"
+           f"\n{basket_text}\nСтоимость за сладости: {int(all_price)} руб.\n"
 
     text += distance_text
 
