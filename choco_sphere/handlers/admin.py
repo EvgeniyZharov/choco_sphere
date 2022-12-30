@@ -42,11 +42,12 @@ from data_base import update_status_user_ticket
 from data_base import get_actual_order
 from data_base import get_actual_user_ticket
 
-from handlers.other import ADMINS
+from handlers.other import ADMINS, ADD_ADMIN_KEYS
 
 
 # from add_function import get_info_order
 # from add_function import get_histogram
+
 
 
 class FSMAddProductCategory(StatesGroup):
@@ -125,6 +126,12 @@ class FSMSettings(StatesGroup):
     choice_update_password = State()
     accept_update_password = State()
 
+    choice_add_admin = State()
+    create_admin_key = State()
+    input_new_admin_key = State()
+    input_reverse_admin_key = State()
+    delete_admin_key = State()
+
 
 class FSMShow(StatesGroup):
 
@@ -159,10 +166,12 @@ def get_text_for_show_order_to_admin(order):
         comment = ""
 
     basket_text = "\nКорзина:\n"
-    element_basket = get_from_order_sold(order["order_id"])
+    basket = get_from_order_sold(order["order_id"])
+    print(basket)
     all_price = 0
-    for elem in element_basket:
-        basket_text += f"{elem['product_title']}\nКоличество: {elem['count']}\nЦена: {elem['one_price']}\n"
+    for elem in basket:
+        basket_text += f"{elem['product_title']}\nКатегория: {elem['category_title']}\n" \
+                       f"Количество: {elem['count']}\nЦена: {elem['one_price']}\n"
         all_price += elem['count'] * elem['one_price']
 
     text = f"Дата заказа: {order['order_date']}\nСтатус: {status}\n" \
@@ -211,6 +220,7 @@ async def func(msg: types.Message, state: FSMContext):
 
 @dp.message_handler(Text(equals="Настройки", ignore_case=True))
 async def settings(msg: types.Message):
+    print("ok")
     user_id = str(msg.from_user.id)
     if user_id in ADMINS:
         await msg.answer("Выберите, что хотите настроить",
@@ -1128,6 +1138,57 @@ async def settings_account(msg: types.Message):
 
         # await FSMShow.choice_type_two.set()
 
+
+@dp.message_handler(Text(equals="Добавить нового администратора", ignore_case=True), state=FSMSettings.choice_settings)
+async def settings_account(msg: types.Message):
+    user_id = str(msg.from_user.id)
+    if user_id in ADMINS:
+        await msg.answer("Выберите режим",
+                         reply_markup=admin_keyboards.settings_add_admin_btn())
+
+        await FSMSettings.choice_add_admin.set()
+
+
+@dp.message_handler(Text(equals="Создать ключ", ignore_case=True), state=FSMSettings.choice_add_admin)
+async def settings_account(msg: types.Message):
+    user_id = str(msg.from_user.id)
+    if user_id in ADMINS:
+        await msg.answer(f"Введите новый ключ, по которому можно будет создать один аккаунт Админа",
+                         reply_markup=admin_keyboards.create_keyboards(list(), cancel_btn=True))
+
+        await FSMSettings.create_admin_key.set()
+
+
+@dp.message_handler(state=FSMSettings.create_admin_key)
+async def settings_account(msg: types.Message):
+    user_id = str(msg.from_user.id)
+    if user_id in ADMINS:
+        ADD_ADMIN_KEYS.append(msg.text)
+        await msg.answer(f"Ключ сохранен, теперь второму пользователю нужно ввести /add_admin"
+                         f", а затем '{msg.text}' в чат с ботом",
+                         reply_markup=admin_keyboards.start_admin())
+
+        await FSMSettings.input_new_admin_key.set()
+
+
+@dp.message_handler(Text(equals="Удалить все ключи", ignore_case=True), state=FSMSettings.choice_add_admin)
+async def settings_account(msg: types.Message):
+    user_id = str(msg.from_user.id)
+    if user_id in ADMINS:
+        ADD_ADMIN_KEYS.clear()
+        await msg.answer("Ключи удалены",
+                         reply_markup=admin_keyboards.start_admin())
+
+        await FSMSettings.delete_admin_key.set()
+
+
+# @dp.message_handler()
+# async def input_add_admin_key(msg: types.Message):
+#     if msg.text in ADD_ADMIN_KEYS:
+#         print("okey")
+#         await msg.answer("Нужно ввести Ваш номер, для этого нажмите на кнопку",
+#                          reply_markup=other_keyboards.set_contact_user())
+#         await FSMAddAdmin.input_key.set()
 
 
 
