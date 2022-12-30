@@ -118,11 +118,11 @@ def get_text_for_client_check(data):
     elif location["type"] == "button":
         distance = find_distance(f"{location['latitude']} - {location['longitude']}", type_place=2)
         price_2 = float(str(distance).split()[0]) * 100
-        distance_text = f"Стоимость доставки: {price_2} руб."
+        distance_text = f"Стоимость доставки: {int(price_2)} руб."
     else:
         distance = find_distance(location["address"])
         price_2 = float(str(distance).split()[0]) * 100
-        distance_text = f"Стоимость доставки: {price_2} руб."
+        distance_text = f"Стоимость доставки: {int(price_2)} руб."
 
     date = f"{data['day_order']}.{data['month_order']}.{data['year_order']}"
 
