@@ -50,7 +50,8 @@ def settings_btn():
         "Категории",
         "Продукты",
         "Вопрос-ответ",
-        "Аккаунт"
+        "Аккаунт",
+        "Добавить нового администратора"
     ]
 
     kb = create_keyboards(btn_list, cancel_btn=True)
@@ -93,6 +94,18 @@ def settings_ask_answer_btn():
         "Создать",
         # "Изменить",
         "Удалить"
+    ]
+
+    kb = create_keyboards(btn_list, cancel_btn=True)
+
+    return kb
+
+
+def settings_add_admin_btn():
+    btn_list = [
+        "Создать ключ",
+        # "Ввести ключ другой стороны",
+        "Удалить все ключи"
     ]
 
     kb = create_keyboards(btn_list, cancel_btn=True)
