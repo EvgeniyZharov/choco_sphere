@@ -1235,8 +1235,8 @@ async def set_contact(msg: types.Message, state: FSMContext):
 
             await msg.answer("Ваша заявка отправлена!",
                              reply_markup=other_keyboards.start_keyboards())
-            # await bot.send_message("404248385", "Добавлен новый заказ")
-            await bot.send_message("961023982", "Добавлен новый заказ")
+            await bot.send_message("404248385", "Добавлен новый заказ")
+#             await bot.send_message("961023982", "Добавлен новый заказ")
             for elem in ADMINS:
                 await bot.send_message(f"{elem}", "Добавлен новый заказ")
         else:
@@ -1282,8 +1282,8 @@ async def show_answer(msg: types.Message):
     result = add_user_ticket_in_table(user_id, new_ticket, "ACTUAL")
     if result:
         await msg.answer("Скоро администратор ответит на Ваш вопрос")
-        # await bot.send_message("404248385", "Добавлен новый тикет от пользователя")
-        await bot.send_message("961023982", "Добавлен новый тикет от пользователя")
+        await bot.send_message("404248385", "Добавлен новый тикет от пользователя")
+#         await bot.send_message("961023982", "Добавлен новый тикет от пользователя")
         for elem in ADMINS:
             await bot.send_message(f"{elem}", "Добавлен новый тикет от пользователя")
 
