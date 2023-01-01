@@ -980,7 +980,7 @@ async def settings_account(callback: types.CallbackQuery, state: FSMContext):
                 order_list = get_orders_table()
             msg = callback.message
 
-        order_list = get_orders_table()
+        # order_list = get_orders_table()
         if order_list:
             async with state.proxy() as data:
                 data["order_index"] = 0
@@ -1087,10 +1087,17 @@ async def previuos_ticket(callback: types.CallbackQuery, state: FSMContext):
     async with state.proxy() as data:
         order = data["order"]
         order_id = order["order_id"]
-        result = update_status_order(order_id, "READ")
-        if result:
+        if order['status'] == "ACTUAL":
+            result = [update_status_order(order_id, "READ"), 1]
+        else:
+            result = [update_status_order(order_id, "ACTUAL"), 2]
+
+        if result[0]:
             await callback.answer("Статус изменен")
-            data["order"]["status"] = "READ"
+            if result[1] == 1:
+                data["order"]["status"] = "READ"
+            else:
+                data["order"]["status"] = "ACTUAL"
         else:
             await callback.answer("Произошла ошибка", show_alert=True)
 
