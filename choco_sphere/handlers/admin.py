@@ -1038,7 +1038,7 @@ async def next_ticket(callback: types.CallbackQuery, state: FSMContext):
             order_list = get_actual_order()
         else:
             order_list = get_orders_table()
-        order_end_index = len(order_list)
+        order_end_index = len(order_list) - 1
         if data["order_index"] + 1 > order_end_index:
             await callback.answer("Это самый конец")
             return
