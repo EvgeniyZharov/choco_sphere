@@ -3,7 +3,7 @@ from config import TOKEN, host, user, password, database_title
 
 TABLES = [
     "users",
-#     "category",
+    "category",
     "product",
     "orders",
     "sold_pack",
@@ -28,6 +28,7 @@ def connecting():
             charset="utf8",
             cursorclass=pymysql.cursors.DictCursor
         )
+        con.set_charset('utf8')
         with con.cursor() as cur:
             cur.execute('SET NAMES utf8;')
             cur.execute('SET CHARACTER SET utf8;')
