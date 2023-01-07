@@ -66,7 +66,7 @@ def create_user_table(db_title=database_title):
 def create_category_table(db_title=database_title):
     try:
         request = f"""CREATE TABLE IF NOT EXISTS db_chocosphere.category (category_id int AUTO_INCREMENT,
-								 title VARCHAR(100) UNIQUE,
+								 title VARCHAR(20) UNIQUE,
                                  category_description TEXT,
                                  image_link VARCHAR(200),
                                  PRIMARY KEY(category_id));"""
@@ -82,7 +82,7 @@ def create_product_table(db_title=database_title):
     try:
         request = f"""CREATE TABLE IF NOT EXISTS db_chocosphere.product (product_id int AUTO_INCREMENT,
 								 category_id int,
-                                 title VARCHAR(100),
+                                 title VARCHAR(20),
                                  product_description TEXT,
                                  structure TEXT,
                                  price int,
@@ -355,7 +355,6 @@ def del_ask_answer_from_table(ask):
         return False
 
 
-
 #
 #
 # def del_course_from_table(course_number):
@@ -376,7 +375,12 @@ def get_table(table_title, db_title=database_title):
         request = f"SELECT * FROM {db_title}.{table_title}"
         with con.cursor() as cur:
             cur.execute(request)
-        return cur.fetchall()
+        elem_list = cur.fetchall()
+        if len(elem_list) > 0:
+            return elem_list
+        else:
+            connecting()
+            return get_table(table_title)
 
 
 def get_users_table():
@@ -416,7 +420,12 @@ def get_elements_table(table_title, elements, db_title=database_title):
             request = f"SELECT {part_request} FROM {db_title}.{table_title}"
             with con.cursor() as cur:
                 cur.execute(request)
-            return [True, cur.fetchall()]
+            elem_list = cur.fetchall()
+            if len(elem_list) > 0:
+                return [True, elem_list]
+            else:
+                connecting()
+                return get_elements_table(table_title, elements)
         except Exception as ex:
             return [False, ex]
 
@@ -444,7 +453,12 @@ def get_elem_for_elem(table_title, elements, condition_1, condition_2, db_title=
             request = f"SELECT {part_request} FROM {db_title}.{table_title} WHERE {condition_1} = '{condition_2}';"
             with con.cursor() as cur:
                 cur.execute(request)
-            return [True, cur.fetchall()]
+            elem_list = cur.fetchall()
+            if len(elem_list) > 0:
+                return [True, elem_list]
+            else:
+                connecting()
+                return get_elem_for_elem(table_title, elements, condition_1, condition_2)
         except Exception as ex:
             return [False, ex]
 
@@ -570,13 +584,13 @@ print(add_admin_in_table("404248385", "+79999999999", "pass"))
 
 # print("***"*100)
 
-# print(get_table(TABLES[0]))
-# print(get_table(TABLES[1]))
-# print(get_table(TABLES[2]))
-# print(get_table(TABLES[3]))
-# print(get_table(TABLES[4]))
-# print(get_table(TABLES[5]))
-# print(get_table(TABLES[6]))
+print(get_table(TABLES[0]))
+print(get_table(TABLES[1]))
+print(get_table(TABLES[2]))
+print(get_table(TABLES[3]))
+print(get_table(TABLES[4]))
+print(get_table(TABLES[5]))
+print(get_table(TABLES[6]))
 
 print("***"*100)
 
@@ -587,7 +601,3 @@ print("***"*100)
 # print(get_from_category_product(5))
 
 print("***"*100)
-
-
-################################################################################33
-
