@@ -374,7 +374,7 @@ def del_ask_answer_from_table(ask):
 
 def get_table(table_title, db_title=database_title):
     if table_title in TABLES:
-        request = f"SELECT * FROM '{db_title}.{table_title}'"
+        request = f"SELECT * FROM db_chocosphere.{table_title}"
         with con.cursor() as cur:
             cur.execute(request)
         elem_list = cur.fetchall()
