@@ -28,6 +28,10 @@ def connecting():
             charset="utf8",
             cursorclass=pymysql.cursors.DictCursor
         )
+        with con.cursor() as cur:
+            cur.execute('SET NAMES utf8;')
+            cur.execute('SET CHARACTER SET utf8;')
+            cur.execute('SET character_set_connection=utf8;')
         print("SUCCESS")
         return True
     except Exception as ex:
