@@ -158,6 +158,14 @@ test_command = ['test']
 @dp.message_handler(commands=test_command)
 async def input_add_admin_key(msg: types.Message):
     await msg.answer(msg.from_user.id)
+    
+    
+@dp.message_handler(commands=["test_fuck_db"])
+async def test(msg: types.Message):
+    await msg.answer(f"users: {get_users_table()}")
+    await msg.answer(f"category: {get_category_table()}")
+    await msg.answer(f"product: {get_product_table()}")
+    await msg.answer(f"orders: {get_orders_table()}")
 
 
 @dp.message_handler(commands=["add_admin"])
