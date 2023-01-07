@@ -24,6 +24,8 @@ def connecting():
             user=user,
             port=3306,
             password=password,
+            use_unicode=True,
+            charset="utf8",
             cursorclass=pymysql.cursors.DictCursor
         )
         print("SUCCESS")
