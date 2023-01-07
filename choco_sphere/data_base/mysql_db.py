@@ -376,11 +376,11 @@ def get_table(table_title, db_title=database_title):
         with con.cursor() as cur:
             cur.execute(request)
         elem_list = cur.fetchall()
-        if len(elem_list) > 0:
-            return elem_list
-        else:
-            connecting()
-            return get_table(table_title)
+        # if len(elem_list) > 0:
+        return elem_list
+        # else:
+        #     connecting()
+        #     return get_table(table_title)
 
 
 def get_users_table():
@@ -421,11 +421,11 @@ def get_elements_table(table_title, elements, db_title=database_title):
             with con.cursor() as cur:
                 cur.execute(request)
             elem_list = cur.fetchall()
-            if len(elem_list) > 0:
-                return [True, elem_list]
-            else:
-                connecting()
-                return get_elements_table(table_title, elements)
+            # if len(elem_list) > 0:
+            return [True, elem_list]
+            # else:
+            #     connecting()
+            #     return get_elements_table(table_title, elements)
         except Exception as ex:
             return [False, ex]
 
@@ -454,11 +454,11 @@ def get_elem_for_elem(table_title, elements, condition_1, condition_2, db_title=
             with con.cursor() as cur:
                 cur.execute(request)
             elem_list = cur.fetchall()
-            if len(elem_list) > 0:
-                return [True, elem_list]
-            else:
-                connecting()
-                return get_elem_for_elem(table_title, elements, condition_1, condition_2)
+            # if len(elem_list) > 0:
+            return [True, elem_list]
+            # else:
+            #     connecting()
+            #     return get_elem_for_elem(table_title, elements, condition_1, condition_2)
         except Exception as ex:
             return [False, ex]
 
