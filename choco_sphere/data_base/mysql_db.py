@@ -3,7 +3,7 @@ from config import TOKEN, host, user, password, database_title
 
 TABLES = [
     "users",
-    "category",
+#     "category",
     "product",
     "orders",
     "sold_pack",
