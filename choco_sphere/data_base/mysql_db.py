@@ -591,13 +591,13 @@ print(add_admin_in_table("404248385", "+79999999999", "pass"))
 
 # print("***"*100)
 
-print(get_table(TABLES[0]))
-# print(get_table(TABLES[1]))
-print(get_table(TABLES[2]))
-print(get_table(TABLES[3]))
-print(get_table(TABLES[4]))
-print(get_table(TABLES[5]))
-print(get_table(TABLES[6]))
+# print(get_table(TABLES[0]))
+# # print(get_table(TABLES[1]))
+# print(get_table(TABLES[2]))
+# print(get_table(TABLES[3]))
+# print(get_table(TABLES[4]))
+# print(get_table(TABLES[5]))
+# print(get_table(TABLES[6]))
 
 print("***"*100)
 
