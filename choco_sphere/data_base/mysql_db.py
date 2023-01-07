@@ -19,7 +19,7 @@ con = ""
 def connecting():
     global con
     try:
-        con = pymysql.connect(
+        con = pymysql.Connection(
             host=host,
             user=user,
             port=3306,
@@ -28,6 +28,7 @@ def connecting():
             charset="utf8",
             cursorclass=pymysql.cursors.DictCursor
         )
+        con.set_character_set('utf8')
         with con.cursor() as cur:
             cur.execute('SET NAMES utf8;')
             cur.execute('SET CHARACTER SET utf8;')
