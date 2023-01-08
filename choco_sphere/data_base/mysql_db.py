@@ -16,6 +16,23 @@ con = ""
 
 # CONNECT TO DATABASE
 
+def contact():
+    global con
+    try:
+        con = pymysql.Connection(
+                host=host,
+                user=user,
+                port=3306,
+                password=password,
+                use_unicode=True,
+                charset="utf8",
+                cursorclass=pymysql.cursors.DictCursor
+            )
+        return True
+    except Exception:
+        return False
+
+
 def connecting():
     global con
     try:
@@ -591,13 +608,13 @@ print(add_admin_in_table("404248385", "+79999999999", "pass"))
 
 # print("***"*100)
 
-# print(get_table(TABLES[0]))
-# # print(get_table(TABLES[1]))
-# print(get_table(TABLES[2]))
-# print(get_table(TABLES[3]))
-# print(get_table(TABLES[4]))
-# print(get_table(TABLES[5]))
-# print(get_table(TABLES[6]))
+print(get_table(TABLES[0]))
+print(get_table(TABLES[1]))
+print(get_table(TABLES[2]))
+print(get_table(TABLES[3]))
+print(get_table(TABLES[4]))
+print(get_table(TABLES[5]))
+print(get_table(TABLES[6]))
 
 print("***"*100)
 
