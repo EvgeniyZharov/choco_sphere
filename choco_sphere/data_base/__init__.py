@@ -42,3 +42,5 @@ from data_base.mysql_db import get_actual_user_ticket
 from data_base.mysql_db import update_status_user_ticket
 from data_base.mysql_db import update_status_order
 from data_base.mysql_db import get_actual_order
+from data_base.mysql_db import contact
+
