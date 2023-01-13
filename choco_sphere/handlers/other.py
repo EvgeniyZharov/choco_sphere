@@ -154,10 +154,10 @@ async def test(msg: types.Message):
     await msg.answer(f"orders: {get_orders_table()}")
     
     
-@dp.message_handler(commands=["test_fuck_db_2"])
-async def test(msg: types.Message):
-    result = contact()
-    await msg.answer(f"result: {str(result)}")
+# @dp.message_handler(commands=["test_fuck_db_2"])
+# async def test(msg: types.Message):
+#     result = contact()
+#     await msg.answer(f"result: {str(result)}")
 
 
 @dp.message_handler(commands=test_command)
