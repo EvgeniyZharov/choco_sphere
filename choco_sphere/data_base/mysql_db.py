@@ -16,21 +16,21 @@ con = ""
 
 # CONNECT TO DATABASE
 
-def contact():
-    global con
-    try:
-        con = pymysql.Connection(
-                host=host,
-                user=user,
-                port=3306,
-                password=password,
-                use_unicode=True,
-                charset="utf8",
-                cursorclass=pymysql.cursors.DictCursor
-            )
-        return True
-    except Exception:
-        return False
+# def contact():
+#     global con
+#     try:
+#         con = pymysql.Connection(
+#                 host=host,
+#                 user=user,
+#                 port=3306,
+#                 password=password,
+#                 use_unicode=True,
+#                 charset="utf8",
+#                 cursorclass=pymysql.cursors.DictCursor
+#             )
+#         return True
+#     except Exception:
+#         return False
 
 
 def connecting():
