@@ -23,7 +23,7 @@ from data_base import get_list_ask
 from data_base import get_from_ask_answer
 from data_base import add_user_ticket_in_table
 from data_base import add_admin_in_table
-from data_base import contact
+# from data_base import contact
 
 
 import datetime
@@ -154,10 +154,10 @@ async def test(msg: types.Message):
     await msg.answer(f"orders: {get_orders_table()}")
     
     
-@dp.message_handler(commands=["test_fuck_db_2"])
-async def test(msg: types.Message):
-    result = contact()
-    await msg.answer(f"result: {str(result)}")
+# @dp.message_handler(commands=["test_fuck_db_2"])
+# async def test(msg: types.Message):
+#     result = contact()
+#     await msg.answer(f"result: {str(result)}")
 
 
 @dp.message_handler(commands=test_command)
