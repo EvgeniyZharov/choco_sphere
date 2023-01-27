@@ -7,7 +7,7 @@ from aiogram import types
 # from handlers import client, admin, other
 from handlers import admin, other
 #
-# from data_base import connecting
+from data_base import connecting
 
 
 # @dp.message_handler(commands=['start'])
@@ -29,7 +29,7 @@ from handlers import admin, other
 
 
 async def on_startup(_):
-    # connecting()
+    connecting()
     print("Bot is starting!")
 
 #
