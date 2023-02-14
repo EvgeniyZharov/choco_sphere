@@ -1,4 +1,4 @@
-TOKEN = "5685967291:AAFdbi9HVCG62Xm-JdIpj9gzd2UAkOQtcT0"
+TOKEN = "SOME TOKEN"
 
 START_ADDRESS = "Красная пл., Москва, 109012"
 
